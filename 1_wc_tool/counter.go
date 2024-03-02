@@ -1,13 +1,25 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"io"
 	"log"
 	"os"
 	"regexp"
 	"strings"
+	"unicode/utf8"
 )
+
+// TODO: use bufio.Scanner instead of os.Stat to parse file/text/standard input
+func ReadStandardInput(scanner *bufio.Scanner, options Options) int {
+	return 0
+}
+
+// TODO: use bufio.Scanner instead of os.Stat to parse file/text/standard input
+func ReadFile(filepath string, options Options) int {
+	return 0
+}
 
 func ByteCounter(filepath string) int {
 	fi, err := os.Stat(filepath)
@@ -17,7 +29,11 @@ func ByteCounter(filepath string) int {
 	return int(fi.Size())
 }
 
-func LineCounter(r io.Reader) int {
+func LineCounter(filepath string) int {
+	r, err := os.Open(filepath)
+	if err != nil {
+		log.Fatal(err)
+	}
 	buf := make([]byte, 32*1024)
 	count := 0
 	lineSep := []byte{'\n'}
@@ -36,9 +52,13 @@ func LineCounter(r io.Reader) int {
 	}
 }
 
-func WordCounter(r io.Reader) int {
+func WordCounter(filepath string) int {
+	r, err := os.Open(filepath)
+	if err != nil {
+		log.Fatal(err)
+	}
 	buf := new(strings.Builder)
-	_, err := io.Copy(buf, r)
+	_, err = io.Copy(buf, r)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -46,4 +66,18 @@ func WordCounter(r io.Reader) int {
 	re := regexp.MustCompile(`[\S]+`)
 	results := re.FindAllString(s, -1)
 	return len(results)
+}
+
+func CharacterCounter(filepath string) int {
+	r, err := os.Open(filepath)
+	if err != nil {
+		log.Fatal(err)
+	}
+	buf := new(strings.Builder)
+	_, err = io.Copy(buf, r)
+	if err != nil {
+		log.Fatal(err)
+	}
+	s := buf.String()
+	return utf8.RuneCountInString(s)
 }

@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"os"
 )
 
 func main() {
@@ -23,24 +22,31 @@ func main() {
 
 func run(filepaths []string, options Options) {
 	if len(filepaths) == 0 {
+		// TODO: read from standard input if no filename is specified
 		log.Println("TBD")
 	} else {
 		for _, filepath := range filepaths {
-			file, err := os.Open(filepath)
-			if err != nil {
-				log.Fatal(err)
-			}
 			if options.printBytes {
 				count := ByteCounter(filepath)
 				printResults(count, filepath)
 			}
 			if options.printLines {
-				count := LineCounter(file)
+				count := LineCounter(filepath)
 				printResults(count, filepath)
 			}
 			if options.printWords {
-				count := WordCounter(file)
+				count := WordCounter(filepath)
 				printResults(count, filepath)
+			}
+			if options.printChars {
+				count := CharacterCounter(filepath)
+				printResults(count, filepath)
+			}
+			if !options.printBytes && !options.printLines && !options.printWords && !options.printChars {
+				lineCount := LineCounter(filepath)
+				wordCount := WordCounter(filepath)
+				byteCount := ByteCounter(filepath)
+				printResultsMultiple(lineCount, wordCount, byteCount, filepath)
 			}
 		}
 	}
@@ -48,4 +54,8 @@ func run(filepaths []string, options Options) {
 
 func printResults(count int, filepath string) {
 	fmt.Printf("%d %s\n", count, filepath)
+}
+
+func printResultsMultiple(lineCount int, wordCount int, byteCount int, filepath string) {
+	fmt.Printf("%d %d %d %s\n", lineCount, wordCount, byteCount, filepath)
 }
